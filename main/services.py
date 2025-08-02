@@ -17,8 +17,7 @@ from watchdog.observers import Observer
 class MyEventHandler(FileSystemEventHandler):
     
     def modif(self, event: FileSystemEvent):
-        self._path = event.src_path()
-        print(self._path)
+        print(event.event_type)
         print('ok')
     
 
@@ -135,14 +134,17 @@ class Financeiro(Geral):
 if __name__ == '__main__':
     path = r"C:\ArquivoMonitorado"
     event_H = MyEventHandler()
+    event_H.modif(FileSystemEvent)
     obs = Observer()
     obs.schedule(event_H, path, recursive=True)
     obs.start()
     
     
-    try:
-        while True:
-            sleep(1)
-    except KeyboardInterrupt:
-        obs.stop
-    obs.join()
+try:
+    while True:
+        sleep(1)
+        if event_H.modif(FileSystemEvent):
+            continue
+except KeyboardInterrupt:
+    obs.stop()
+obs.join()

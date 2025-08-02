@@ -1,12 +1,26 @@
 import pandas as pd
 from openpyxl import *
-from django.conf import settings
+# from django.conf import settings
 import os
+from time import sleep
+
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.observers import Observer
+
 
 # ! = IMPORTANTE
 # ? = OQUE FAZ
 # TODO = A FAZER
 # * = AVISOS
+
+
+class MyEventHandler(FileSystemEventHandler):
+    
+    def modif(self, event: FileSystemEvent):
+        self._path = event.src_path()
+        print(self._path)
+        print('ok')
+    
 
 class Geral:
     
@@ -106,8 +120,6 @@ class Financeiro(Geral):
         lista = self.Limpa(self.csv.cc.to_list())
         print(lista)
 
-
-
     # ? Função para soma
     
     # ? def Sum(self):
@@ -118,3 +130,19 @@ class Financeiro(Geral):
     # ?     self.csv['tbl5'] = lis
     # ?     self.csv.to_csv(self.pathCSV, index=True)
     # ?     self.csv.to_excel('arquivos/Pasta1.xlsx', index=False)
+    
+    
+if __name__ == '__main__':
+    path = r"C:\ArquivoMonitorado"
+    event_H = MyEventHandler()
+    obs = Observer()
+    obs.schedule(event_H, path, recursive=True)
+    obs.start()
+    
+    
+    try:
+        while True:
+            sleep(1)
+    except KeyboardInterrupt:
+        obs.stop
+    obs.join()

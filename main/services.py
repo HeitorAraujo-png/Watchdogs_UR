@@ -8,7 +8,7 @@ from openpyxl.utils import get_column_letter
 
 # ! = IMPORTANTE
 # ? = OQUE FAZ
-# TODO = A FAZER
+# ^ = A FAZER
 # * = AVISOS
 
 

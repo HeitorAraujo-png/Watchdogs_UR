@@ -1,7 +1,9 @@
 import pandas as pd
-from openpyxl import *
+from settings import *
 import os
-
+from watch import *
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
     
     
     
@@ -13,18 +15,15 @@ import os
 
 class Geral:
     
-    def __init__(self, PathXlsx, nome):
+    def __init__(self, PathXlsx):
         self.Path = PathXlsx
-        self.nome = nome
         
     def MakeArq(self):
         if self.Path.endswith('.xlsx'):
             self.csv = pd.read_excel(self.Path)
-            self.csv.to_csv(os.path.join(settings.MEDIA_ROOT, 'Arq.csv'), index=True, encoding='utf-8', sep=';')
         elif self.Path.endswith('.csv'):
             self.csv = pd.read_csv(self.Path, sep=';')
-            self.csv.to_csv(os.path.join(settings.MEDIA_ROOT, 'Arq.csv'), index=True, encoding='utf-8', sep=';')
-        else: return 'erro'
+        self.csv.to_csv(os.path.join(TEMP, 'Arq.csv'), index=True, encoding='utf-8', sep=';')
         
     def Tratamento(self):
         lista = {}
@@ -34,15 +33,31 @@ class Geral:
             lista['nome'] = rows['nome']
             lista['cpf'] = rows['cpf']
             self.Geral = pd.concat([self.Geral, pd.DataFrame([lista])], ignore_index=False)
-        self.Geral.to_excel(os.path.join(settings.MEDIA_ROOT, 'DeuCerto.xlsx'), index=False)
-        return 'DeuCerto.xlsx'
+        self.Geral.to_excel(os.path.join(FINAL, 'DeuCerto.xlsx'), index=False)
             
     def LGPD(self):
-        conteudo = os.listdir(f'{os.path.join(settings.MEDIA_ROOT)}')
+        conteudo = os.listdir(f'{os.path.join(TEMP)}')
         arquivos = [item for item in conteudo]
         for i in arquivos:
-            os.remove(f'{os.path.join(settings.MEDIA_ROOT, i)}')
+            os.remove(f'{os.path.join(TEMP, i)}')
             
+    def Espaco(self):
+        wb = load_workbook(os.path.join(FINAL, 'DeuCerto.xlsx'))
+        sheet = wb.sheetnames[0]
+        ws = wb[sheet]
+        for col in ws.columns:
+            max_l = 0
+            coluna = col[0].column
+            coluna_letra = get_column_letter(coluna)
+            for cell in col:
+                try:
+                    if cell.value:
+                        max_l = max(max_l, len(str(cell.value)))
+                except Exception as e:
+                    pass
+            ajuste = max_l + 2
+            ws.column_dimensions[coluna_letra].width = ajuste
+        wb.save(fr'{FINAL}\DeuCerto.xlsx')
             
         
     # ? Pega index de coluna especifica
@@ -58,6 +73,7 @@ class Geral:
         return alfabeto[index]
 
 class Financeiro(Geral):
+    
 
     def __init__(self, xlsx, csv):
         super().__init__(PathCsv= csv, PathXlsx= xlsx)
@@ -115,5 +131,3 @@ class Financeiro(Geral):
     # ?     self.csv['tbl5'] = lis
     # ?     self.csv.to_csv(self.pathCSV, index=True)
     # ?     self.csv.to_excel('arquivos/Pasta1.xlsx', index=False)
-    
- 

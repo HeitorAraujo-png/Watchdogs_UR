@@ -1,15 +1,15 @@
 import pandas as pd
 from openpyxl import *
 import os
-
-    
-    
-    
-# ! = IMPORTANTE
-# ? = OQUE FAZ
-# TODO = A FAZER
-# * = AVISOS
-    
+import sys
+from time import sleep
+from watchdog.events import FileSystemEvent, FileSystemEventHandler, LoggingEventHandler
+from watchdog.observers import Observer
+import logging
+BASE_DIR = os.getcwd()
+RELATORIO_LOG = r'C:\Users\heito\WATCHDOG\log\Relatorio.log'
+ARQUIVO_MONITORADO = r'C:\Users\heito\WATCHDOG\ArquivoMonitorado'
+TEMP = r"C:\Users\heito\WATCHDOG\Processado\CSV_XLSX"
 
 class Geral:
     
@@ -117,3 +117,35 @@ class Financeiro(Geral):
     # ?     self.csv.to_excel('arquivos/Pasta1.xlsx', index=False)
     
  
+
+class MyHandler(FileSystemEventHandler):
+
+    def on_modified(self, event):
+        if not event.is_directory:
+            path = event.src_path
+            name = os.path.basename(path)
+            print(f'Novo arquivo {name}!')
+            if name.endswith('.xlsx', '.csv'):
+                
+
+
+
+
+
+if __name__ == '__main__':
+    logging.basicConfig(filename=RELATORIO_LOG,filemode='a' , level=logging.INFO, format='%(asctime)s | %(process)d | %(message)s', datefmt='%d-%m-%y %H:%M:%S')
+    path = ARQUIVO_MONITORADO
+    log = LoggingEventHandler()
+    event_handler = MyHandler()
+    obs = Observer()
+    obs.schedule(log, path, recursive=True)
+    obs.schedule(event_handler, path, recursive=False) # recursive=True == Ler subpastas
+    obs.start()
+    try:
+        while True:
+            sleep(1)
+    except KeyboardInterrupt:
+        obs.stop()
+        obs.join()
+
+

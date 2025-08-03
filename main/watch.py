@@ -25,4 +25,4 @@ class MyHandler(FileSystemEventHandler):
                     log.write(f"{timestamp} ERROR: {error}! {event.src_path} \n")    
         else:
             with open(ERROR_LOG, 'a') as log:
-                log.write(f"{timestamp} Novo diretorio detectado! {event.src_path} \n")2
+                log.write(f"{timestamp} Novo diretorio detectado! {event.src_path} \n")
